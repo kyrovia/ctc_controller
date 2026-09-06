@@ -26,8 +26,10 @@ from demo_common import (
     ik_position,
     load_mujoco_scene,
     load_pinocchio_model,
-    make_default_ctc,
+    make_obstacle_demo_ctc,
     mujoco_to_pin_position,
+    TAU_LIMIT,
+    TAU_LIMIT_STR,
     read_named,
     run_realtime_sleep,
     write_named,
@@ -35,21 +37,18 @@ from demo_common import (
 
 ROOT = Path(__file__).resolve().parents[1]
 JOINT_LABELS = ["J1", "J2", "J3", "J4", "J5", "J6"]
-DEMO_TAU_LIMIT = np.array([25.0, 20.0, 20.0, 5.0, 5.0, 5.0])
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", type=Path, default=DEFAULT_MJCF)
     parser.add_argument("--scene", type=Path, default=DEFAULT_SCENE_OBSTACLE)
     parser.add_argument("--duration", type=float, default=8.0)
-    parser.add_argument("--approach-time", type=float, default=4.0)
+    parser.add_argument("--approach-time", type=float, default=2.5)
     parser.add_argument("--real-time", action="store_true")
     parser.add_argument("--history", type=float, default=3.0, help="torque plot window [s]")
     parser.add_argument(
         "--max-tau",
-        default="25,20,20,5,5,5",
-        help="six comma-separated demo torque limits [Nm]",
+        default=TAU_LIMIT_STR,
+        help="six comma-separated UR5e joint torque limits [Nm]",
     )
     return parser.parse_args()
 
@@ -59,11 +58,12 @@ def build_push_target(
     pin_data,
     frame_id: int,
     obstacle_center: np.ndarray,
+    push_beyond: float = 0.15,
 ) -> np.ndarray:
     home = fk_position(pin_model, pin_data, frame_id, Q_HOME)
     direction = obstacle_center - home
-    # Aim 8 cm beyond the obstacle center so contact creates persistent error.
-    target = obstacle_center + 0.08 * direction / np.linalg.norm(direction)
+    # Aim beyond the obstacle so contact creates persistent tracking error.
+    target = obstacle_center + push_beyond * direction / np.linalg.norm(direction)
     return ik_position(
         pin_model,
         pin_data,
@@ -175,7 +175,7 @@ def main() -> int:
         frame_id,
         mujoco_to_pin_position(obstacle_center),
     )
-    ctc = make_default_ctc(pin_model, pin_data, tau_limit=tau_limit)
+    ctc = make_obstacle_demo_ctc(pin_model, pin_data, tau_limit=tau_limit)
     plot = TorquePlot(args.history, dt, tau_limit)
 
     steps = max(1, int(round(args.duration / dt)))

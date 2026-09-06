@@ -91,7 +91,7 @@ if(CTC_ENABLE_MUJOCO)
             --real-time
     DEPENDS ctc_mujoco_scene
     USES_TERMINAL
-    COMMENT "Launch UR5e Cartesian circle tracking demo"
+    COMMENT "Launch UR5e high-speed circle tracking benchmark"
   )
   add_custom_target(ur5e_obstacle_torque_demo
     COMMAND "${Python3_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/examples/ur5e_obstacle_torque_demo.py"

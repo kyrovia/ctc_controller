@@ -30,7 +30,12 @@ UR5E_JOINTS = [
 
 Q_HOME = np.array([-np.pi / 2, -np.pi / 2, np.pi / 2, -np.pi / 2, -np.pi / 2, 0.0])
 NV = len(UR5E_JOINTS)
+# UR5e max joint torques (Nm), from Universal Robots e-Series joint sizes:
+# J1-J3 = size 3 (150 Nm), J4-J6 = size 1 (28 Nm).
+# Source: https://www.universal-robots.com/articles/ur/robot-care-maintenance/max-joint-torques/
+# Matches MuJoCo Menagerie ur5e.xml forcerange defaults.
 TAU_LIMIT = np.array([150.0, 150.0, 150.0, 28.0, 28.0, 28.0])
+TAU_LIMIT_STR = ",".join(str(int(v)) for v in TAU_LIMIT)
 EE_FRAME = "attachment_site"
 EE_SITE = "attachment_site"
 START_KEYCODE = 32
@@ -201,6 +206,19 @@ def make_default_ctc(
     tau_limit: np.ndarray | None = None,
 ) -> CTCController:
     gains = Gains(kp=np.full(NV, 120.0), kd=np.full(NV, 24.0))
+    safety = Safety(
+        tau_abs_max=TAU_LIMIT.copy() if tau_limit is None else tau_limit.copy()
+    )
+    return CTCController(pin_model, pin_data, gains, safety)
+
+
+def make_obstacle_demo_ctc(
+    pin_model: pin.Model,
+    pin_data: pin.Data,
+    tau_limit: np.ndarray | None = None,
+) -> CTCController:
+    """CTC for obstacle demo: higher gains so blocked push reaches UR5e torque limits."""
+    gains = Gains(kp=np.full(NV, 400.0), kd=np.full(NV, 80.0))
     safety = Safety(
         tau_abs_max=TAU_LIMIT.copy() if tau_limit is None else tau_limit.copy()
     )
