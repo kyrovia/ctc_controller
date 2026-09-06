@@ -13,7 +13,11 @@ namespace ctc_control {
 class PinocchioRobotModel final : public RobotModel {
 public:
   
-  static PinocchioRobotModel from_urdf(const std::string& urdf_path);
+  static PinocchioRobotModel from_file(const std::string& model_path);
+
+  static PinocchioRobotModel from_urdf(const std::string& urdf_path) {
+    return from_file(urdf_path);
+  }
 
   explicit PinocchioRobotModel(pinocchio::Model model);
 

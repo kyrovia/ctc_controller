@@ -22,7 +22,7 @@ CTCController::CTCController(
     std::shared_ptr<const RobotModel> model, Gains gains, Safety safety)
     : model_(std::move(model)), gains_(std::move(gains)), safety_(std::move(safety)) {
   if (!model_) {
-    throw std::invalid_argument("ComputedTorqueController: model is null");
+    throw std::invalid_argument("CTCController: model is null");
   }
   check_sizes(gains_);
   reset();
