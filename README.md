@@ -32,6 +32,8 @@ python examples/ur5e_figure8_demo.py --headless
 - 黄色球：当前末端位置
 - 按 **空格** 开始
 
+![Demo 1：高速圆轨迹跟踪](assets/demo1_high_speed_circle.gif)
+
 ## Demo 2：障碍物碰撞 + 力矩限幅曲线
 
 ```bash
@@ -49,6 +51,8 @@ python examples/ur5e_obstacle_torque_demo.py --real-time
 - 红色虚线 = ±max_tau
 - 默认限幅为 UR5e 关节上限：`150,150,150,28,28,28 Nm`（J1–J3 大关节 150，J4–J6 腕部 28）
 - 可通过 `--max-tau` 覆盖；例如 `--max-tau 25,20,20,5,5,5` 可更容易观察饱和
+
+![Demo 2：障碍物碰撞与力矩限幅](assets/demo2_torque_limit.gif)
 
 ## 自动化测试
 
